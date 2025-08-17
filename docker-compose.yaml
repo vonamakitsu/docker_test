@@ -9,8 +9,13 @@ services:
             sh -c "
                 composer install &&
                 until bin/console doctrine:query:sql 'SELECT 1'; do
-                echo 'Waiting for db...'; sleep 2;
+                echo '===========================';
+                echo 'Waiting 5 seconds for db...'; 
+                echo '===========================';
+                sleep 5;
                 done &&
+                bin/console doctrine:migrations:migrate --no-interaction &&
+                php bin/console make:migration --no-interaction &&
                 bin/console doctrine:migrations:migrate --no-interaction &&
                 php-fpm
             "
