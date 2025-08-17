@@ -1,0 +1,37 @@
+services:
+    php:
+        build: ./docker/php
+        volumes:
+            - ./:/var/www/symfony
+        command: >
+            sh -c "composer install && php-fpm"
+
+    nginx:
+        image: nginx:alpine
+        ports:
+            - "8080:80"
+        volumes:
+            - ./:/var/www/symfony
+            - ./docker/nginx/conf.d:/etc/nginx/conf.d
+        depends_on:
+            - php
+    db:
+        image: mysql:8.0.31-debian
+        restart: always
+        environment:
+            MYSQL_ALLOW_EMPTY_PASSWORD: true
+        volumes:
+            - db_data:/var/lib/mysql
+    pma:
+        image: phpmyadmin
+        restart: always
+        ports:
+            - 8081:80
+        depends_on:
+            - db
+        environment:
+            PMA_ARBITRARY: 1
+            PMA_HOST: db
+
+volumes:
+    db_data:
